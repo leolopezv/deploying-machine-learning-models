@@ -52,7 +52,7 @@ def pre_pipeline_preparation(*, dataframe: pd.DataFrame) -> pd.DataFrame:
     data["age"] = data["age"].astype("float")
 
     # drop unnecessary variables
-    data.drop(labels=config.model_config.unused_fields, axis=1, inplace=True)
+    data.drop(labels=config.model_config_.unused_fields, axis=1, inplace=True)
 
     return data
 
