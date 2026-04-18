@@ -1,12 +1,10 @@
-uvicorn
-fastapi
-python-multipart
-pydantic
-pydantic-settings
-typing_extensions
-loguru
-# We will explain this in the course
-tid-regression-model>=3.2.0
-feature-engine
-numpy
-pandas
+uvicorn==0.23.2
+fastapi==0.95.2
+python-multipart==0.0.6
+pydantic==1.10.13
+typing_extensions==4.7.1
+loguru==0.7.0
+tid-regression-model==3.2.0
+feature-engine==1.6.2
+numpy==1.26.4
+pandas==1.5.3

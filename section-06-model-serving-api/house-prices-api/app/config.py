@@ -5,7 +5,7 @@ from typing import List, cast
 
 from loguru import logger
 from pydantic import AnyHttpUrl, ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 
 
 class LoggingSettings(BaseSettings):
