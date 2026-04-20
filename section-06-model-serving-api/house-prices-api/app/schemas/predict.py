@@ -1,7 +1,91 @@
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
-from regression_model.processing.validation import HouseDataInputSchema
+
+try:
+    from regression_model.processing.validation import HouseDataInputSchema
+except ImportError:
+    # Fallback schema when regression_model is not available
+    class HouseDataInputSchema(BaseModel):
+        MSSubClass: Optional[int] = None
+        MSZoning: Optional[str] = None
+        LotFrontage: Optional[float] = None
+        LotArea: Optional[int] = None
+        Street: Optional[str] = None
+        Alley: Optional[str] = None
+        LotShape: Optional[str] = None
+        LandContour: Optional[str] = None
+        Utilities: Optional[str] = None
+        LotConfig: Optional[str] = None
+        LandSlope: Optional[str] = None
+        Neighborhood: Optional[str] = None
+        Condition1: Optional[str] = None
+        Condition2: Optional[str] = None
+        BldgType: Optional[str] = None
+        HouseStyle: Optional[str] = None
+        OverallQual: Optional[int] = None
+        OverallCond: Optional[int] = None
+        YearBuilt: Optional[int] = None
+        YearRemodAdd: Optional[int] = None
+        RoofStyle: Optional[str] = None
+        RoofMatl: Optional[str] = None
+        Exterior1st: Optional[str] = None
+        Exterior2nd: Optional[str] = None
+        MasVnrType: Optional[str] = None
+        MasVnrArea: Optional[float] = None
+        ExterQual: Optional[str] = None
+        ExterCond: Optional[str] = None
+        Foundation: Optional[str] = None
+        BsmtQual: Optional[str] = None
+        BsmtCond: Optional[str] = None
+        BsmtExposure: Optional[str] = None
+        BsmtFinType1: Optional[str] = None
+        BsmtFinSF1: Optional[float] = None
+        BsmtFinType2: Optional[str] = None
+        BsmtFinSF2: Optional[float] = None
+        BsmtUnfSF: Optional[float] = None
+        TotalBsmtSF: Optional[float] = None
+        Heating: Optional[str] = None
+        HeatingQC: Optional[str] = None
+        CentralAir: Optional[str] = None
+        Electrical: Optional[str] = None
+        FirstFlrSF: Optional[int] = None
+        SecondFlrSF: Optional[int] = None
+        LowQualFinSF: Optional[int] = None
+        GrLivArea: Optional[int] = None
+        BsmtFullBath: Optional[float] = None
+        BsmtHalfBath: Optional[float] = None
+        FullBath: Optional[int] = None
+        HalfBath: Optional[int] = None
+        BedroomAbvGr: Optional[int] = None
+        KitchenAbvGr: Optional[int] = None
+        KitchenQual: Optional[str] = None
+        TotRmsAbvGrd: Optional[int] = None
+        Functional: Optional[str] = None
+        Fireplaces: Optional[int] = None
+        FireplaceQu: Optional[str] = None
+        GarageType: Optional[str] = None
+        GarageYrBlt: Optional[float] = None
+        GarageFinish: Optional[str] = None
+        GarageCars: Optional[float] = None
+        GarageArea: Optional[float] = None
+        GarageQual: Optional[str] = None
+        GarageCond: Optional[str] = None
+        PavedDrive: Optional[str] = None
+        WoodDeckSF: Optional[int] = None
+        OpenPorchSF: Optional[int] = None
+        EnclosedPorch: Optional[int] = None
+        ThreeSsnPortch: Optional[int] = None
+        ScreenPorch: Optional[int] = None
+        PoolArea: Optional[int] = None
+        PoolQC: Optional[str] = None
+        Fence: Optional[str] = None
+        MiscFeature: Optional[str] = None
+        MiscVal: Optional[int] = None
+        MoSold: Optional[int] = None
+        YrSold: Optional[int] = None
+        SaleType: Optional[str] = None
+        SaleCondition: Optional[str] = None
 
 
 class PredictionResults(BaseModel):

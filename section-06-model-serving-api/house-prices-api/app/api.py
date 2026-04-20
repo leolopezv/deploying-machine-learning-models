@@ -6,11 +6,18 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 from loguru import logger
-from regression_model import __version__ as model_version
-from regression_model.predict import make_prediction
 
 from app import __version__, schemas
 from app.config import settings
+
+# Temporary workaround for missing regression_model dependency
+try:
+    from regression_model import __version__ as model_version
+    from regression_model.predict import make_prediction
+    REGRESSION_MODEL_AVAILABLE = True
+except ImportError:
+    model_version = "3.2.0 (unavailable)"
+    REGRESSION_MODEL_AVAILABLE = False
 
 api_router = APIRouter()
 
@@ -32,6 +39,12 @@ async def predict(input_data: schemas.MultipleHouseDataInputs) -> Any:
     """
     Make house price predictions with the TID regression model
     """
+    
+    if not REGRESSION_MODEL_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Regression model is not available. Please install tid-regression-model package."
+        )
 
     input_df = pd.DataFrame(jsonable_encoder(input_data.inputs))
 

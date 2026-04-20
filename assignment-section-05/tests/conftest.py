@@ -16,11 +16,11 @@ def sample_input_data():
     # divide train and test
     X_train, X_test, y_train, y_test = train_test_split(
         data,  # predictors
-        data[config.model_config.target],
-        test_size=config.model_config.test_size,
+        data[config.model_config_.target],
+        test_size=config.model_config_.test_size,
         # we are setting the random seed here
         # for reproducibility
-        random_state=config.model_config.random_state,
+        random_state=config.model_config_.random_state,
     )
 
     return X_test

@@ -21,25 +21,26 @@ titanic_pipe = Pipeline(
             "categorical_imputation",
             CategoricalImputer(
                 imputation_method="missing",
-                variables=config.model_config.categorical_vars,
+                variables=config.model_config_.categorical_vars,
             ),
         ),
         # add missing indicator to numerical variables
         (
             "missing_indicator",
-            AddMissingIndicator(variables=config.model_config.numerical_vars),
+            AddMissingIndicator(variables=config.model_config_.numerical_vars),
         ),
         # impute numerical variables with the median
         (
             "median_imputation",
             MeanMedianImputer(
-                imputation_method="median", variables=config.model_config.numerical_vars
+                imputation_method="median",
+                variables=config.model_config_.numerical_vars,
             ),
         ),
         # Extract letter from cabin
         (
             "extract_letter",
-            ExtractLetterTransformer(variables=config.model_config.cabin_vars),
+            ExtractLetterTransformer(variables=config.model_config_.cabin_vars),
         ),
         # == CATEGORICAL ENCODING ======
         # remove categories present in less than 5% of the observations (0.05)
@@ -47,14 +48,16 @@ titanic_pipe = Pipeline(
         (
             "rare_label_encoder",
             RareLabelEncoder(
-                tol=0.05, n_categories=1, variables=config.model_config.categorical_vars
+                tol=0.05,
+                n_categories=1,
+                variables=config.model_config_.categorical_vars,
             ),
         ),
         # encode categorical variables using one hot encoding into k-1 variables
         (
             "categorical_encoder",
             OneHotEncoder(
-                drop_last=True, variables=config.model_config.categorical_vars
+                drop_last=True, variables=config.model_config_.categorical_vars
             ),
         ),
         # scale

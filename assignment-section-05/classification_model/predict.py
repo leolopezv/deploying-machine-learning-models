@@ -23,7 +23,7 @@ def make_prediction(
 
     if not errors:
         predictions = _titanic_pipe.predict(
-            X=validated_data[config.model_config.features]
+            X=validated_data[config.model_config_.features]
         )
         results = {
             "predictions": predictions,

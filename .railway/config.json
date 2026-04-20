@@ -1,0 +1,28 @@
+{
+  "projectId": "YOUR_RAILWAY_PROJECT_ID",
+  "environments": {
+    "production": {
+      "name": "production",
+      "priority": 1
+    },
+    "staging": {
+      "name": "staging",
+      "priority": 2
+    }
+  },
+  "services": {
+    "api": {
+      "name": "house-prices-api",
+      "buildCommand": "pip install -r section-08-deploying-with-containers/house-prices-api/requirements.txt",
+      "startCommand": "cd section-08-deploying-with-containers/house-prices-api && uvicorn app.main:app --host 0.0.0.0 --port 8001",
+      "port": 8001,
+      "healthcheck": {
+        "path": "/",
+        "interval": 10,
+        "timeout": 5,
+        "maxRetries": 5
+      }
+    }
+  }
+}
+

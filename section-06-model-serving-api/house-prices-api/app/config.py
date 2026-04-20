@@ -4,14 +4,18 @@ from types import FrameType
 from typing import List, cast
 
 from loguru import logger
-from pydantic import AnyHttpUrl, BaseSettings
+from pydantic import AnyHttpUrl, ConfigDict
+from pydantic import BaseSettings
 
 
 class LoggingSettings(BaseSettings):
     LOGGING_LEVEL: int = logging.INFO  # logging levels are type int
+    model_config = ConfigDict(case_sensitive=True)
 
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(case_sensitive=True)
+    
     API_V1_STR: str = "/api/v1"
 
     # Meta
@@ -28,8 +32,6 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "House Price Prediction API"
 
-    class Config:
-        case_sensitive = True
 
 
 # See: https://loguru.readthedocs.io/en/stable/overview.html#entirely-compatible-with-standard-logging  # noqa

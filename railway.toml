@@ -1,0 +1,17 @@
+[build]
+builder = "dockerfile"
+dockerfile = "section-08-deploying-with-containers/Dockerfile"
+buildArgs = { PIP_EXTRA_INDEX_URL = "$PIP_EXTRA_INDEX_URL" }
+
+[deploy]
+startCommand = "bash ./run.sh"
+healthcheckPath = "/"
+healthcheckInterval = 10
+healthcheckTimeout = 5
+healthcheckMaxRetries = 5
+
+[[services]]
+name = "api"
+buildCommand = ""
+startCommand = "cd section-08-deploying-with-containers/house-prices-api && uvicorn app.main:app --host 0.0.0.0 --port 8001"
+

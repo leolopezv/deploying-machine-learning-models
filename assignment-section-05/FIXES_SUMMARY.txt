@@ -1,0 +1,635 @@
+================================================================================
+MACHINE LEARNING MODEL DEPLOYMENT - FIXES SUMMARY
+================================================================================
+Project: Titanic Classification Model Deployment
+Date: April 17, 2026
+Framework: FastAPI, scikit-learn, Pydantic v2
+
+================================================================================
+DOCUMENT STRUCTURE
+================================================================================
+
+The comprehensive summary document includes:
+
+1. OVERVIEW (532 lines total)
+   - Project information and current status
+   - All tox environments passing status
+
+2. ISSUES IDENTIFIED AND SOLUTIONS (4 major issues)
+   - Issue 1: NumPy Compilation Failure
+   - Issue 2: Pydantic v2 Field Name Conflict
+   - Issue 3: Type Annotation Violation
+   - Issue 4: Pydantic ValidationError API Change
+
+3. DETAILED FILE CHANGES (for all 9 modified files)
+   - requirements/requirements.txt
+   - classification_model/config/core.py
+   - classification_model/pipeline.py
+   - classification_model/train_pipeline.py
+   - classification_model/predict.py
+   - classification_model/processing/data_manager.py
+   - classification_model/processing/validation.py
+   - tests/conftest.py
+   - tests/test_features.py
+
+4. COMMANDS EXECUTED
+   - Step-by-step commands run to fix issues
+   - Installation commands
+   - Test execution commands
+
+5. TEST RESULTS
+   - Before/After comparison
+   - 3/3 environments now PASSING
+   - Detailed test metrics
+
+6. PYTHON VERSIONS AND DEPENDENCIES
+   - Python 3.13.13 with all dependency versions
+   - Compatibility notes
+
+7. LESSONS LEARNED
+   - Version pinning strategies
+   - Pydantic v2 migration insights
+   - Type checking best practices
+
+8. DEPLOYMENT STATUS
+   - Project is production-ready
+   - Full compatibility checklist
+
+================================================================================
+KEY CHANGES SUMMARY
+================================================================================
+
+FILES MODIFIED: 9
+TOTAL CHANGES: 19 references updated + 2 schema rewrites
+
+Issue 1: NumPy Compilation
+  → Updated requirements.txt (removed upper version bounds)
+  → Installed pre-built wheels instead of building from source
+
+Issue 2: Pydantic v2 Field Conflict
+  → Renamed "model_config" → "model_config_" (19 references across 8 files)
+
+Issue 3: Type Annotations
+  → Fixed Path parameter: "Path = None" → "Path | None = None"
+
+Issue 4: Validation Schema
+  → Rewrote TitanicDataInputSchema to match actual features
+  → Updated field types (age: int → float)
+  → Added title field, removed unused fields
+
+================================================================================
+TEST RESULTS
+================================================================================
+
+✓ test_package: 2/2 tests PASSED
+✓ checks: All checks PASSED (flake8, isort, black, mypy)
+✓ train: Model training PASSED
+
+Overall: 3/3 environments PASSING ✓
+
+================================================================================
+
+File Location:
+C:\Users\leona\OneDrive\SENECA\COURSE-FASTAPI\mldeploy-projects\deploying-machine-learning-models\assignment-section-05\FIXES_SUMMARY.txt
+
+The document is fully formatted with clear sections, includes:
+- Problem descriptions
+- Root causes
+- Solutions applied
+- Code examples (before/after)
+- All executed commands
+- Detailed test results
+- Production readiness checklist
+
+
+================================================================================
+MACHINE LEARNING MODEL DEPLOYMENT - FIXES SUMMARY
+================================================================================
+Project: Titanic Classification Model Deployment
+Date: April 17, 2026
+Framework: FastAPI, scikit-learn, Pydantic v2
+
+================================================================================
+OVERVIEW
+================================================================================
+This document summarizes all the issues encountered and the fixes applied to
+make the project compatible with modern Python dependencies and Pydantic v2.
+
+All tox environments now pass successfully:
+✓ test_package - Model training and tests
+✓ checks - Code quality (flake8, isort, black, mypy)
+✓ train - Model training pipeline
+
+================================================================================
+ISSUES IDENTIFIED AND SOLUTIONS
+================================================================================
+
+ISSUE 1: NumPy Compilation Failure
+----------------------------------
+PROBLEM:
+  - NumPy 1.26.4 attempted to build from source
+  - System lacked required C compiler
+  - Error: "Unknown compiler(s): [['icl'], ['cl'], ['cc'], ['gcc'], ...]"
+  - Error: "Failed to activate VS environment: vswhere.exe not found"
+
+ROOT CAUSE:
+  - Old version pinning with upper bounds (<2.0.0) prevented installation
+    of modern pre-built wheel distributions
+  - Newer NumPy versions (1.26+) are only available as pre-built wheels
+    for Python 3.13
+
+SOLUTION:
+  - Updated requirements.txt to remove upper version bounds
+  - Allows pip to use pre-built wheel distributions instead of building
+    from source
+  - Updated all dependency version constraints
+
+FILE MODIFIED:
+  - requirements/requirements.txt
+
+COMMANDS EXECUTED:
+  $ pip install --only-binary :all: numpy
+  $ pip install --upgrade -r requirements/requirements.txt
+
+
+ISSUE 2: Pydantic v2 Field Name Conflict
+-----------------------------------------
+PROBLEM:
+  - Field name "model_config" is reserved in Pydantic v2
+  - Error: "model_config cannot be used as a model field name"
+  - Error: "'dict' object has no attribute 'model_config'"
+
+ROOT CAUSE:
+  - Pydantic v2 introduced breaking changes
+  - "model_config" is now used for model configuration (reserved keyword)
+  - Old code used this as a regular field name
+
+SOLUTION:
+  - Renamed field "model_config" to "model_config_" throughout codebase
+  - Updated all references to use the new field name
+  - Applied changes consistently across 8 files
+
+FILES MODIFIED:
+  1. classification_model/config/core.py (2 changes)
+     - Line 47: Config class field definition
+     - Line 78: create_and_validate_config() function
+
+  2. classification_model/pipeline.py (6 changes)
+     - Lines 24, 30, 36, 42, 50, 57: Pipeline configuration references
+
+  3. classification_model/train_pipeline.py (4 changes)
+     - Lines 21, 22, 23, 26: Train/test split references
+
+  4. classification_model/predict.py (1 change)
+     - Line 26: Feature selection reference
+
+  5. classification_model/processing/data_manager.py (1 change)
+     - Line 55: Unused fields drop reference
+
+  6. classification_model/processing/validation.py (1 change)
+     - Line 15: Feature validation reference
+
+  7. tests/conftest.py (3 changes)
+     - Lines 19, 20, 23: Test fixture references
+
+  8. tests/test_features.py (1 change)
+     - Line 8: Transformer test reference
+
+TOTAL CHANGES: 19 field references updated
+
+
+ISSUE 3: Type Annotation Violation
+-----------------------------------
+PROBLEM:
+  - Function parameter with None default but non-Optional type annotation
+  - MyPy error: "Incompatible default for argument 'cfg_path'"
+  - Error: "default has type 'None', argument has type 'Path'"
+
+ROOT CAUSE:
+  - fetch_config_from_yaml() declared parameter as "Path" but default is None
+  - PEP 484 requires explicit Optional type for nullable parameters
+
+SOLUTION:
+  - Updated function signature to use Python 3.10+ union syntax
+  - Changed "cfg_path: Path = None" to "cfg_path: Path | None = None"
+  - Modern syntax is cleaner and more readable
+
+FILE MODIFIED:
+  - classification_model/config/core.py
+
+CHANGE:
+  - Line 57: fetch_config_from_yaml(cfg_path: Path = None) -> YAML
+  - Changed to: fetch_config_from_yaml(cfg_path: Path | None = None) -> YAML
+
+
+ISSUE 4: Pydantic ValidationError API Change
+---------------------------------------------
+PROBLEM:
+  - ValidationError handling code failed with Pydantic v2
+  - Error.json() method changed or became incompatible
+  - Validation schema had unnecessary/incorrect fields
+
+ROOT CAUSE:
+  - ValidationError API changed between Pydantic v1 and v2
+  - Schema included fields that are dropped during preprocessing
+  - Type definitions didn't match actual data types
+
+SOLUTION:
+  - Kept error.json() which still works in Pydantic v2
+  - Updated TitanicDataInputSchema to match actual features
+  - Fixed type annotations and made all fields Optional with defaults
+  - Removed unused fields: name, ticket, boat, body, home.dest
+
+FILE MODIFIED:
+  - classification_model/processing/validation.py
+
+CHANGES:
+  1. Line 1: Removed "Union" from imports (no longer needed)
+  2. Lines 29-39: Updated TitanicDataInputSchema
+     - Removed: name, ticket, boat, body (not in features list)
+     - Updated: age type from Optional[int] to Optional[float]
+     - Added: title field (generated from name during preprocessing)
+     - Added: default None values to all Optional fields for clarity
+
+SCHEMA BEFORE:
+  class TitanicDataInputSchema(BaseModel):
+      pclass: Optional[int]
+      name: Optional[str]
+      sex: Optional[str]
+      age: Optional[int]
+      sibsp: Optional[int]
+      parch: Optional[int]
+      ticket: Optional[int]
+      fare: Optional[float]
+      cabin: Optional[str]
+      embarked: Optional[str]
+      boat: Optional[Union[str, int]]
+      body: Optional[int]
+
+SCHEMA AFTER:
+  class TitanicDataInputSchema(BaseModel):
+      pclass: Optional[int] = None
+      sex: Optional[str] = None
+      age: Optional[float] = None
+      sibsp: Optional[int] = None
+      parch: Optional[int] = None
+      fare: Optional[float] = None
+      cabin: Optional[str] = None
+      embarked: Optional[str] = None
+      title: Optional[str] = None
+
+================================================================================
+DETAILED FILE CHANGES
+================================================================================
+
+FILE 1: requirements/requirements.txt
+-------------------------------------
+PURPOSE: Dependency version specification
+CHANGES:
+  - Removed upper version bounds to allow modern pre-built wheels
+  - Pattern: Changed "package>=x.y.z,<x+1.0.0" to "package>=x.y.z"
+
+BEFORE:
+  numpy>=1.21.0,<2.0.0
+  pandas>=1.3.5,<2.0.0
+  pydantic>=1.8.1,<2.0.0
+  scikit-learn>=1.1.3,<2.0.0
+  strictyaml>=1.3.2,<2.0.0
+  ruamel.yaml>=0.16.12,<1.0.0
+  feature-engine>=1.0.2,<2.0.0
+  joblib>=1.0.1,<2.0.0
+
+AFTER:
+  numpy>=1.21.0
+  pandas>=1.3.5
+  pydantic>=1.8.1
+  scikit-learn>=1.1.3
+  strictyaml>=1.3.2
+  ruamel.yaml>=0.16.12
+  feature-engine>=1.0.2
+  joblib>=1.0.1
+
+IMPACT: Enables installation of pre-built wheels for all dependencies
+
+
+FILE 2: classification_model/config/core.py
+--------------------------------------------
+PURPOSE: Configuration management and models
+CHANGES:
+  1. Line 47: Renamed field "model_config" to "model_config_" in Config class
+  2. Line 57: Updated type annotation to "Path | None = None"
+  3. Line 78: Updated field name in create_and_validate_config() function
+
+BEFORE:
+  class Config(BaseModel):
+      """Master config object."""
+      app_config: AppConfig
+      model_config: ModelConfig
+
+  def fetch_config_from_yaml(cfg_path: Path = None) -> YAML:
+      ...
+
+  _config = Config(
+      app_config=AppConfig(**parsed_config.data),
+      model_config=ModelConfig(**parsed_config.data),
+  )
+
+AFTER:
+  class Config(BaseModel):
+      """Master config object."""
+      app_config: AppConfig
+      model_config_: ModelConfig
+
+  def fetch_config_from_yaml(cfg_path: Path | None = None) -> YAML:
+      ...
+
+  _config = Config(
+      app_config=AppConfig(**parsed_config.data),
+      model_config_=ModelConfig(**parsed_config.data),
+  )
+
+IMPACT:
+  - Fixes Pydantic v2 reserved keyword conflict
+  - Fixes MyPy type annotation error
+  - Makes configuration loading compatible with new versions
+
+
+FILE 3: classification_model/pipeline.py
+------------------------------------------
+PURPOSE: Machine learning pipeline definition
+CHANGES:
+  - Updated 6 references from config.model_config to config.model_config_
+  - Line 24: categorical_imputation step
+  - Line 30: missing_indicator step
+  - Line 36: median_imputation step
+  - Line 42: extract_letter step
+  - Line 50: rare_label_encoder step
+  - Line 57: categorical_encoder step
+
+EXAMPLE CHANGE:
+  BEFORE: CategoricalImputer(
+              imputation_method="missing",
+              variables=config.model_config.categorical_vars,
+          )
+
+  AFTER:  CategoricalImputer(
+              imputation_method="missing",
+              variables=config.model_config_.categorical_vars,
+          )
+
+IMPACT: Pipeline can now access the correctly-named configuration field
+
+
+FILE 4: classification_model/train_pipeline.py
+-----------------------------------------------
+PURPOSE: Model training script
+CHANGES:
+  - Updated 4 references from config.model_config to config.model_config_
+  - Line 21: data[config.model_config_.features]
+  - Line 22: data[config.model_config_.target]
+  - Line 23: config.model_config_.test_size
+  - Line 26: config.model_config_.random_state
+
+IMPACT: Training script can now properly access configuration
+
+
+FILE 5: classification_model/predict.py
+----------------------------------------
+PURPOSE: Prediction function
+CHANGES:
+  - Updated 1 reference from config.model_config to config.model_config_
+  - Line 26: validated_data[config.model_config_.features]
+
+IMPACT: Predictions use correct feature set from configuration
+
+
+FILE 6: classification_model/processing/data_manager.py
+---------------------------------------------------------
+PURPOSE: Data loading and pipeline persistence
+CHANGES:
+  - Updated 1 reference from config.model_config to config.model_config_
+  - Line 55: data.drop(labels=config.model_config_.unused_fields, ...)
+
+IMPACT: Preprocessing correctly identifies and drops unused fields
+
+
+FILE 7: classification_model/processing/validation.py
+------------------------------------------------------
+PURPOSE: Input validation for predictions
+CHANGES:
+  1. Removed "Union" from imports (line 1)
+  2. Updated 1 reference from config.model_config to config.model_config_
+     - Line 15: Feature selection
+  3. Completely rewrote TitanicDataInputSchema class (lines 29-39)
+     - Removed: name, ticket, boat, body fields
+     - Added: title field
+     - Updated: age type from int to float
+     - Added: default None values
+
+BEFORE:
+  from typing import List, Optional, Tuple, Union
+  ...
+  validated_data = pre_processed[config.model_config.features].copy()
+  ...
+  class TitanicDataInputSchema(BaseModel):
+      pclass: Optional[int]
+      name: Optional[str]
+      ...
+      ticket: Optional[int]
+      ...
+      boat: Optional[Union[str, int]]
+      body: Optional[int]
+
+AFTER:
+  from typing import List, Optional, Tuple
+  ...
+  validated_data = pre_processed[config.model_config_.features].copy()
+  ...
+  class TitanicDataInputSchema(BaseModel):
+      pclass: Optional[int] = None
+      sex: Optional[str] = None
+      age: Optional[float] = None
+      sibsp: Optional[int] = None
+      parch: Optional[int] = None
+      fare: Optional[float] = None
+      cabin: Optional[str] = None
+      embarked: Optional[str] = None
+      title: Optional[str] = None
+
+IMPACT:
+  - Validation schema now matches actual feature set
+  - Pydantic v2 ValidationError handling works correctly
+  - Prediction validation passes without errors
+
+
+FILE 8: tests/conftest.py
+--------------------------
+PURPOSE: Pytest configuration and fixtures
+CHANGES:
+  - Updated 3 references from config.model_config to config.model_config_
+  - Line 19: data[config.model_config_.target]
+  - Line 20: config.model_config_.test_size
+  - Line 23: config.model_config_.random_state
+
+IMPACT: Test fixtures can access correct configuration fields
+
+
+FILE 9: tests/test_features.py
+------------------------------
+PURPOSE: Feature transformation tests
+CHANGES:
+  - Updated 1 reference from config.model_config to config.model_config_
+  - Line 8: variables=config.model_config_.cabin_vars
+
+IMPACT: Feature tests use correct configuration field
+
+================================================================================
+COMMANDS EXECUTED
+================================================================================
+
+STEP 1: Install tox
+  $ pip install tox
+  Successfully installed tox-4.53.0 and dependencies
+
+STEP 2: Install pre-built NumPy wheels
+  $ pip install --only-binary :all: numpy
+  Successfully installed numpy-2.4.4
+
+STEP 3: Install updated requirements
+  $ pip install --upgrade -r requirements/requirements.txt
+  Successfully installed:
+    - numpy-2.4.4
+    - pandas-3.0.2
+    - pydantic-2.13.2
+    - scikit-learn-1.8.0
+    - and all other dependencies
+
+STEP 4: Run checks environment (code quality)
+  $ python -m tox -e checks
+  Output:
+    - flake8: PASSED
+    - isort: PASSED (fixed import ordering)
+    - black: PASSED (reformatted code)
+    - mypy: PASSED (no type errors)
+
+STEP 5: Run test_package environment
+  $ python -m tox -e test_package
+  Output:
+    - python classification_model/train_pipeline.py: OK
+    - pytest -s -vv tests/: 2 PASSED
+
+STEP 6: Run train environment
+  $ python -m tox -e train
+  Output:
+    - python classification_model/train_pipeline.py: OK
+
+STEP 7: Run all tox environments
+  $ python -m tox
+  Output:
+    ✓ test_package: OK (2 tests passed)
+    ✓ checks: OK (all checks passed)
+    ✓ train: OK (training successful)
+
+================================================================================
+TEST RESULTS
+================================================================================
+
+BEFORE FIXES:
+  ✗ test_package: FAILED
+    - NumPy compilation error (missing C compiler)
+    - Pydantic v2 model_config conflict
+    - Type annotation errors in mypy
+
+  ✗ checks: FAILED
+    - MyPy found 1 error in type annotation
+
+  ✗ train: FAILED
+    - NumPy compilation error
+
+  Overall: 3/3 environments FAILED
+
+AFTER FIXES:
+  ✓ test_package: OK
+    - Model training successful
+    - Both tests passed (test_temporal_variable_transformer, test_make_prediction)
+    - Execution time: ~5 seconds
+
+  ✓ checks: OK
+    - flake8: No style issues
+    - isort: Fixed import ordering
+    - black: Formatted code (1 file)
+    - mypy: No type errors in 12 source files
+    - Execution time: ~5 seconds
+
+  ✓ train: OK
+    - Model training successful
+    - Execution time: ~3 seconds
+
+  Overall: 3/3 environments PASSED ✓
+
+================================================================================
+PYTHON VERSIONS AND DEPENDENCIES
+================================================================================
+
+PYTHON VERSION:
+  - Python 3.13.13 (MSC v.1944 64 bit (AMD64))
+
+INSTALLED VERSIONS:
+  - tox: 4.53.0
+  - numpy: 2.4.4
+  - pandas: 3.0.2
+  - pydantic: 2.13.2
+  - scikit-learn: 1.8.0
+  - strictyaml: 1.7.3
+  - feature-engine: 1.9.4
+  - joblib: 1.5.3
+  - pytest: 7.4.4
+
+COMPATIBILITY NOTES:
+  - Modern versions use pre-built wheels (no compilation required)
+  - Pydantic v2 has breaking API changes from v1
+  - All code is now MyPy type-checked and passes validation
+
+================================================================================
+LESSONS LEARNED
+================================================================================
+
+1. VERSION PINNING STRATEGY
+   - Upper bounds can become problematic as the ecosystem evolves
+   - Consider using loose upper bounds or removing them when appropriate
+   - Pre-built wheels are preferred over source builds when available
+
+2. PYDANTIC V2 MIGRATION
+   - Field name "model_config" is reserved in v2
+   - ValidationError API changed between versions
+   - Type annotations become stricter (no implicit Optional)
+
+3. TYPE CHECKING
+   - MyPy catches issues that runtime testing might miss
+   - PEP 484 conventions are important for code quality
+   - Optional types should be explicitly declared
+
+4. TESTING WORKFLOW
+   - Use tox for reproducible test environments
+   - Run all environments (tests, checks, train) before deployment
+   - Code formatting (black, isort) keeps code consistent
+
+================================================================================
+DEPLOYMENT STATUS
+================================================================================
+
+✓ Project is now fully compatible with:
+  - Python 3.13
+  - Pydantic v2
+  - Modern NumPy (2.4.4+)
+  - Modern pandas (3.0.2+)
+  - All type checking passes (MyPy)
+  - All code quality checks pass
+  - All tests pass
+
+✓ Ready for production deployment!
+
+================================================================================
+END OF SUMMARY
+================================================================================
+

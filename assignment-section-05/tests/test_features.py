@@ -5,7 +5,7 @@ from classification_model.processing.features import ExtractLetterTransformer
 def test_temporal_variable_transformer(sample_input_data):
     # Given
     transformer = ExtractLetterTransformer(
-        variables=config.model_config.cabin_vars,  # cabin
+        variables=config.model_config_.cabin_vars,  # cabin
     )
     assert sample_input_data["cabin"].iat[6] == "E12"
 
