@@ -1,0 +1,111 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.1.1
+
+jobs:
+  test:
+    executor: docker/default
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: |
+            cd section-08-deploying-with-containers/house-prices-api
+            pip install --upgrade pip
+            pip install -r test_requirements.txt
+            pytest
+
+  build_and_push:
+    executor: docker/default
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+      - run:
+          name: Build Docker image
+          command: |
+            docker build \
+              --build-arg PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL} \
+              -t house-prices-api:${CIRCLE_SHA1:0:7} \
+              -t house-prices-api:latest \
+              section-08-deploying-with-containers/.
+      - run:
+          name: Push to Docker Hub
+          command: |
+            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+            docker tag house-prices-api:${CIRCLE_SHA1:0:7} ${DOCKER_USERNAME}/house-prices-api:${CIRCLE_SHA1:0:7}
+            docker tag house-prices-api:latest ${DOCKER_USERNAME}/house-prices-api:latest
+            docker push ${DOCKER_USERNAME}/house-prices-api:${CIRCLE_SHA1:0:7}
+            docker push ${DOCKER_USERNAME}/house-prices-api:latest
+
+  publish_to_gemfury:
+    executor: docker/default
+    steps:
+      - checkout
+      - run:
+          name: Install Gemfury CLI
+          command: gem install gemfury
+      - run:
+          name: Build Python package
+          command: |
+            cd section-05-production-model-package
+            pip install --upgrade pip
+            pip install build twine
+            python -m build
+      - run:
+          name: Push package to Gemfury
+          command: |
+            cd section-05-production-model-package
+            fury push dist/* --as=${GEMFURY_USERNAME}
+
+  deploy_to_railway:
+    executor: docker/default
+    steps:
+      - checkout
+      - run:
+          name: Install Railway CLI
+          command: npm install -g @railway/cli
+      - run:
+          name: Deploy to Railway
+          command: |
+            railway up \
+              --service house-prices-api \
+              --dockerfile section-08-deploying-with-containers/Dockerfile \
+              --build-arg PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}
+          environment:
+            RAILWAY_TOKEN: ${RAILWAY_TOKEN}
+
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: /.*/
+      - build_and_push:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - main
+                - master
+      - publish_to_gemfury:
+          requires:
+            - build_and_push
+          filters:
+            branches:
+              only:
+                - main
+                - master
+      - deploy_to_railway:
+          requires:
+            - build_and_push
+          filters:
+            branches:
+              only:
+                - main
+                - master
+
