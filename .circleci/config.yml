@@ -76,6 +76,17 @@ jobs:
           command: |
             tox -e publish_model
 
+  section_08_test_app_and_container:
+    <<: *defaults
+    working_directory: ~/project/section-08-deploying-with-containers/house-prices-api
+    steps:
+      - checkout:
+          path: ~/project
+      - *prepare_tox
+      - run:
+          name: Running app tests
+          command: |
+            tox
 
   section_08_deploy_app_container_via_railway:
     <<: *defaults
@@ -90,7 +101,7 @@ jobs:
       - run: node --version
       - run: npm i -g @railway/cli
       - run:
-          name: Build and run Dockerfile (see https://docs.railway.app/deploy/dockerfiles)
+          name: Build and deploy container via Railway with Gemfury (see https://docs.railway.app/deploy/dockerfiles)
           command: |
             cd section-08-deploying-with-containers && railway up --detach
 
@@ -279,13 +290,22 @@ workflows:
       # upload after git tags are created
       - section_07_test_and_upload_regression_model:
           <<: *tags_only
-
+      - section_08_test_app_and_container:
+          requires:
+            - section_07_test_and_upload_regression_model
+          filters:
+            branches:
+              only:
+                - master
+                - demo
       - section_08_deploy_app_container_via_railway:
-         filters:
-           branches:
-             only:
-               - master
-               - demo
+          requires:
+            - section_08_test_app_and_container
+          filters:
+            branches:
+              only:
+                - master
+                - demo
 
 #  test-all:
 #    jobs:

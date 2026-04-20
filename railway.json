@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pip install -r section-08-deploying-with-containers/house-prices-api/requirements.txt",
+  "startCommand": "cd section-08-deploying-with-containers/house-prices-api && uvicorn app.main:app --host 0.0.0.0 --port $PORT",
+  "variables": {
+    "PYTHONUNBUFFERED": "1"
+  }
+}
+
