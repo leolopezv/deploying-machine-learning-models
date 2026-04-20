@@ -1,6 +1,5 @@
 ﻿version: 2.1
 orbs:
-  docker: circleci/docker@2.1.1
   node: circleci/node@5.1.0
 jobs:
   test:
@@ -20,7 +19,8 @@ jobs:
           command: |
             pytest -v
   build_and_push:
-    executor: docker/default
+    docker:
+      - image: cimg/base:2022.10
     steps:
       - checkout
       - setup_remote_docker:
